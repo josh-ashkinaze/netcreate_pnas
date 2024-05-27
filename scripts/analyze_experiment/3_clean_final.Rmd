@@ -29,108 +29,60 @@ library(dplyr)
 library(tidyverse)
 library(pbkrtest)
 
+#######################
+#######################
+# NOTE 1 
+# LmerTest conflicts with lme4 and stargazer so I removed it (https://stackoverflow.com/questions/31319030/r-stargazer-lme4-and-lmertest-incompatibility) s
+#######################
+#######################
 
-# Replicated on 2024-05-24 16:22:51 and saving session state
 
-#  setting  value
-#  version  R version 4.3.3 (2024-02-29)
-#  os       macOS Sonoma 14.4.1
-#  system   x86_64, darwin20
-#  ui       RStudio
-#  language (EN)
-#  collate  en_US.UTF-8
-#  ctype    en_US.UTF-8
-#  tz       America/Detroit
-#  date     2024-05-24
-#  rstudio  1.4.1717 Juliet Rose (desktop)
-#  pandoc   2.11.4 @ /Applications/RStudio.app/Contents/MacOS/pandoc/ (via rmarkdown)
+#######################
+#######################
+# NOTE 2: See package and R versions below.
+# > print(sessionInfo())
+# R version 4.3.3 (2024-02-29)
+# Platform: x86_64-apple-darwin20 (64-bit)
+# Running under: macOS Sonoma 14.4.1
 # 
-# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-#  package      * version    date (UTC) lib source
-#  backports      1.4.1      2021-12-13 [1] CRAN (R 4.3.0)
-#  bit            4.0.5      2022-11-15 [1] CRAN (R 4.3.0)
-#  bit64          4.0.5      2020-08-30 [1] CRAN (R 4.3.0)
-#  boot           1.3-29     2024-02-19 [1] CRAN (R 4.3.3)
-#  broom          1.0.6      2024-05-17 [1] CRAN (R 4.3.3)
-#  cli            3.6.2      2023-12-11 [1] CRAN (R 4.3.0)
-#  colorspace     2.1-0      2023-01-23 [1] CRAN (R 4.3.0)
-#  crayon         1.5.2      2022-09-29 [1] CRAN (R 4.3.0)
-#  digest         0.6.35     2024-03-11 [1] CRAN (R 4.3.2)
-#  dplyr        * 1.1.4      2023-11-17 [1] CRAN (R 4.3.0)
-#  emmeans      * 1.10.2     2024-05-20 [1] CRAN (R 4.3.3)
-#  estimability   1.5.1      2024-05-12 [1] CRAN (R 4.3.3)
-#  evaluate       0.23       2023-11-01 [1] CRAN (R 4.3.0)
-#  fansi          1.0.6      2023-12-08 [1] CRAN (R 4.3.0)
-#  farver         2.1.2      2024-05-13 [1] CRAN (R 4.3.3)
-#  fastmap        1.2.0      2024-05-15 [1] CRAN (R 4.3.3)
-#  forcats      * 1.0.0      2023-01-29 [1] CRAN (R 4.3.0)
-#  generics       0.1.3      2022-07-05 [1] CRAN (R 4.3.0)
-#  ggplot2      * 3.5.1      2024-04-23 [1] CRAN (R 4.3.2)
-#  ggthemes     * 5.1.0      2024-02-10 [1] CRAN (R 4.3.2)
-#  glue           1.7.0      2024-01-09 [1] CRAN (R 4.3.0)
-#  gtable         0.3.5      2024-04-22 [1] CRAN (R 4.3.2)
-#  hms            1.1.3      2023-03-21 [1] CRAN (R 4.3.0)
-#  htmltools      0.5.8.1    2024-04-04 [1] CRAN (R 4.3.2)
-#  jtools       * 2.2.2      2023-07-11 [1] CRAN (R 4.3.0)
-#  kableExtra   * 1.4.0      2024-01-24 [1] CRAN (R 4.3.2)
-#  knitr          1.45       2023-10-30 [1] CRAN (R 4.3.0)
-#  labeling       0.4.3      2023-08-29 [1] CRAN (R 4.3.0)
-#  lattice        0.22-5     2023-10-24 [1] CRAN (R 4.3.3)
-#  lifecycle      1.0.4      2023-11-07 [1] CRAN (R 4.3.0)
-#  lme4         * 1.1-35.3   2024-04-16 [1] CRAN (R 4.3.2)
-#  lubridate    * 1.9.3      2023-09-27 [1] CRAN (R 4.3.0)
-#  magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.3.0)
-#  MASS           7.3-60.0.1 2024-01-13 [1] CRAN (R 4.3.3)
-#  Matrix       * 1.6-5      2024-01-11 [1] CRAN (R 4.3.3)
-#  mgcv           1.9-1      2023-12-21 [1] CRAN (R 4.3.3)
-#  minqa          1.2.6      2023-09-11 [1] CRAN (R 4.3.0)
-#  munsell        0.5.1      2024-04-01 [1] CRAN (R 4.3.2)
-#  mvtnorm        1.2-5      2024-05-21 [1] CRAN (R 4.3.3)
-#  nlme           3.1-164    2023-11-27 [1] CRAN (R 4.3.3)
-#  nloptr         2.0.3      2022-05-26 [1] CRAN (R 4.3.0)
-#  pander         0.6.5      2022-03-18 [1] CRAN (R 4.3.0)
-#  pbkrtest     * 0.5.2      2023-01-19 [1] CRAN (R 4.3.0)
-#  pillar         1.9.0      2023-03-22 [1] CRAN (R 4.3.0)
-#  pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.3.0)
-#  purrr        * 1.0.2      2023-08-10 [1] CRAN (R 4.3.0)
-#  R6             2.5.1      2021-08-19 [1] CRAN (R 4.3.0)
-#  ragg           1.3.2      2024-05-15 [1] CRAN (R 4.3.3)
-#  Rcpp           1.0.12     2024-01-09 [1] CRAN (R 4.3.0)
-#  readr        * 2.1.5      2024-01-10 [1] CRAN (R 4.3.0)
-#  rjson        * 0.2.21     2022-01-09 [1] CRAN (R 4.3.0)
-#  rlang          1.1.3      2024-01-10 [1] CRAN (R 4.3.0)
-#  rmarkdown      2.27       2024-05-17 [1] CRAN (R 4.3.3)
-#  rstudioapi     0.16.0     2024-03-24 [1] CRAN (R 4.3.2)
-#  scales         1.3.0      2023-11-28 [1] CRAN (R 4.3.0)
-#  sessioninfo    1.2.2      2021-12-06 [1] CRAN (R 4.3.0)
-#  stargazer    * 5.2.3      2022-03-04 [1] CRAN (R 4.3.0)
-#  stringi        1.8.4      2024-05-06 [1] CRAN (R 4.3.2)
-#  stringr      * 1.5.1      2023-11-14 [1] CRAN (R 4.3.0)
-#  svglite        2.1.3      2023-12-08 [1] CRAN (R 4.3.0)
-#  systemfonts    1.1.0      2024-05-15 [1] CRAN (R 4.3.3)
-#  textshaping    0.3.7      2023-10-09 [1] CRAN (R 4.3.0)
-#  tibble       * 3.2.1      2023-03-20 [1] CRAN (R 4.3.0)
-#  tidyr        * 1.3.1      2024-01-24 [1] CRAN (R 4.3.2)
-#  tidyselect     1.2.1      2024-03-11 [1] CRAN (R 4.3.2)
-#  tidyverse    * 2.0.0      2023-02-22 [1] CRAN (R 4.3.0)
-#  timechange     0.3.0      2024-01-18 [1] CRAN (R 4.3.0)
-#  tzdb           0.4.0      2023-05-12 [1] CRAN (R 4.3.0)
-#  utf8           1.2.4      2023-10-22 [1] CRAN (R 4.3.0)
-#  vctrs          0.6.5      2023-12-01 [1] CRAN (R 4.3.0)
-#  viridisLite    0.4.2      2023-05-02 [1] CRAN (R 4.3.0)
-#  vroom          1.6.5      2023-12-05 [1] CRAN (R 4.3.0)
-#  withr          3.0.0      2024-01-16 [1] CRAN (R 4.3.0)
-#  xfun           0.44       2024-05-15 [1] CRAN (R 4.3.3)
-#  xml2           1.3.6      2023-12-04 [1] CRAN (R 4.3.0)
-#  xtable       * 1.8-4      2019-04-21 [1] CRAN (R 4.3.0)
-#  yaml           2.3.8      2023-12-11 [1] CRAN (R 4.3.0)
+# Matrix products: default
+# BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+# LAPACK: /Library/Frameworks/R.framework/Versions/4.3-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+# 
+# locale:
+# [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+# 
+# time zone: America/Detroit
+# tzcode source: internal
+# 
+# attached base packages:
+# [1] stats     graphics  grDevices utils     datasets  methods   base     
+# 
+# other attached packages:
+#  [1] pbkrtest_0.5.2   purrr_1.0.2      tidyr_1.3.1      tibble_3.2.1     tidyverse_2.0.0  ggplot2_3.5.1    forcats_1.0.0   
+#  [8] rjson_0.2.21     lme4_1.1-35.3    Matrix_1.6-5     kableExtra_1.4.0 ggthemes_5.1.0   lubridate_1.9.3  stargazer_5.2.3 
+# [15] readr_2.1.5      xtable_1.8-4     jtools_2.2.2     stringr_1.5.1    dplyr_1.1.4      emmeans_1.10.2  
+# 
+# loaded via a namespace (and not attached):
+#  [1] gtable_0.3.5       xfun_0.44          lattice_0.22-5     tzdb_0.4.0         vctrs_0.6.5        tools_4.3.3       
+#  [7] generics_0.1.3     parallel_4.3.3     fansi_1.0.6        pkgconfig_2.0.3    lifecycle_1.0.4    farver_2.1.2      
+# [13] compiler_4.3.3     textshaping_0.3.7  munsell_0.5.1      htmltools_0.5.8.1  pillar_1.9.0       nloptr_2.0.3      
+# [19] crayon_1.5.2       MASS_7.3-60.0.1    boot_1.3-29        nlme_3.1-164       tidyselect_1.2.1   digest_0.6.35     
+# [25] mvtnorm_1.2-5      stringi_1.8.4      pander_0.6.5       labeling_0.4.3     splines_4.3.3      fastmap_1.2.0     
+# [31] grid_4.3.3         colorspace_2.1-0   cli_3.6.2          magrittr_2.0.3     utf8_1.2.4         broom_1.0.6       
+# [37] withr_3.0.0        scales_1.3.0       backports_1.4.1    bit64_4.0.5        timechange_0.3.0   estimability_1.5.1
+# [43] rmarkdown_2.27     bit_4.0.5          ragg_1.3.2         hms_1.1.3          evaluate_0.23      knitr_1.45        
+# [49] viridisLite_0.4.2  mgcv_1.9-1         rlang_1.1.3        Rcpp_1.0.12        glue_1.7.0         xml2_1.3.6        
+# [55] vroom_1.6.5        svglite_2.1.3      rstudioapi_0.16.0  minqa_1.2.6        R6_2.5.1           systemfonts_1.1.0 
+#######################
+#######################
 
-
+# Need to increase test limit for this to work
 emm_options(lmerTest.limit = 17000)
 emm_options(pbkrtest.limit = 17000)
 knitr::opts_chunk$set(echo = TRUE)
 
-# @TODO: Make sure Python graphs use same color scheme 
+# Make sure Python graphs use same color scheme 
 hex_color_list = c(
     "#826AED",  # Medium slate blue,
     "#D41876",  # Telemagenta
@@ -151,8 +103,7 @@ hex_color_list = c(
 )
 
 
-# UTILITY FUNCTIONS
-
+# Generic utility functions I use
 
 round_my_df <- function(x, round_digits = 2) {
   return(x %>% mutate(across(where(is.numeric), ~round(.x, digits = round_digits))))
@@ -235,7 +186,7 @@ expr_data <- read_csv("../../data/experiment_data/experiment_aut_scores.csv")
 elab_and_div_scores <- read_csv("../../data/experiment_data/data_clean_with_elab_div_metrics.csv")
 
 # Merge the DataFrames on the response_id column
-# Earlier logic (`get_data.ipynb`) describes the logic for who to exclude from analysis. # For context, it's ~30 responses.
+# Earlier logic (`get_data.ipynb`) describes the logic for who to exclude from analysis. 
 df <- merge(expr_data, elab_and_div_scores, by = "response_id", all.x = TRUE)
 df <- df %>%
   filter(exclude_from_analysis == 0)# Display the merged DataFrame
@@ -252,7 +203,7 @@ df <- df %>%
 df$interest_group <- relevel(factor(df$interest_group), ref = "neutral")
 
 
-# Fix duration with log(duration) --> squashes extreme values
+# Deal w/ duration with log(duration) --> squashes extreme values
 df <- df %>% mutate(log_duration = log(duration))
 
 # Make condition a factor 
@@ -276,7 +227,7 @@ df <- df %>%
 df$exposure <- relevel(factor(df$exposure), ref = "Control")
 df$disclosure <- relevel(factor(df$disclosure), ref = "Undisclosed")
 
-# Recode with celan names
+# Recode with clean names
 df <- df %>% mutate(condition = dplyr::recode(condition,
   "h" = "Control", 
   "f_l" = "LoExposure_Disclosed", 
@@ -306,7 +257,7 @@ df$ai_rel_create <- df$creativity_human - df$creativity_ai
 df$ai_rel_create_cut <- as.integer((df$creativity_human > df$creativity_ai)*1)
 
 
-# Multiply dist_cent by 100 for interpretation
+# Multiply by 100 for interpretation
 df$cent_dist2 <- df$cent_dist*100
 df$mean_dist2 <- df$mean_dist*100
 df$med_dist2 <- df$med_dist*100
@@ -684,6 +635,7 @@ ggsave("hi_adopt_raw.png", dpi=400,height=6, width=9)
 
 ```{r creativity-contrasts,  results='asis'}
 library(kableExtra)
+ 
 con <- list(
   "Interaction" = c(-1, 1, 1, -1)
 ) 
@@ -756,11 +708,9 @@ ggsave("all_pts_rel_adopt.png", dpi=400,height=6, width=9)
 
 
 con <- list(
-  "Disclosed - Undisclosed" = c(0.25, -0.25, 0.25, -0.25)
-) 
+  "d m u" = c(-0.5, -0.5, 0.5, 0.5)
+)
 
-
-# Test whether disclosure moderates exposure
 custom_con <- emmeans(em.grid.rel, ~condition|ai_rel_create, contr=con)
 custom_con.ef <- eff_size(custom_con, edf=df.residual(mod), sigma=mod_sigma)
 print(custom_con, custom_con.ef)
@@ -775,12 +725,12 @@ pg <- pairwise_comp %>% rename("Relative AI Creativity" = ai_rel_create) %>%
 
 cat(kable(pg, caption = "Estimated marginal means contrasts of AI adoption, using a mixed model to compare predictions for top 10 percentile and bottom 10 percentile of participants by belief in relative AI creativity. This metric captures how creative participants think AI is relative to humans (higher values means more creative than humans). AI Adoption is the max cosine similarity of a participant's response and AI examples. P-values adjusted for multiple comparisons using Holm-Bonferroni method.", label = "adopt_rel", format = "latex", digits=3, booktabs = TRUE) %>%  kable_styling(latex_options="scale_down"))
 
-###### BY CONDITION ###### 
+# ###### BY CONDITION ###### 
 pairwise_comp <- pairs(em.grid.rel, by = "condition", adjust = 'holm') %>% as.data.frame() %>% tibble(.)
 eff_sizes <- eff_size(em.grid.rel, edf = df.residual(mod), sigma = mod_sigma, by="condition") %>% as.data.frame() %>% tibble(.)
 pairwise_comp$d <- eff_sizes$effect.size
-pg <- pairwise_comp %>% 
-  rename("Adjusted P Value" = p.value) 
+pg <- pairwise_comp %>%
+  rename("Adjusted P Value" = p.value)
 
 cat(kable(pg, caption = "Estimated marginal means contrasts of AI adoption, using a mixed model to compare predictions for top 10 percentile and bottom 10 percentile of participants by belief in relative AI creativity. This metric captures how creative participants think AI is relative to humans (higher values means more creative than humans). AI Adoption is the max cosine similarity of a participant's response and AI examples. P-values adjusted for multiple comparisons using Holm-Bonferroni method.", label = "adopt_rel_c", format = "latex", digits=3, booktabs = TRUE) %>%  kable_styling(latex_options="scale_down"))
 
@@ -1107,7 +1057,7 @@ ggsave("cor_adopt.png", dpi=400, width=12, height=8)
 ```
 
 
-# Evolution of Diversity (FINALIZED)
+# Evolution of Diversity 
 
 ```{r}
 
@@ -1252,101 +1202,6 @@ em2 %>%
     subtitle = "Predictions from mixed model +- SE\n"
   ) 
   
-
-
-```
-
-
-# Check if source (sm vs weekly newsletter matters)
-```{r}
-
-df <- df %>% mutate(is_sm = ifelse(grepl("Creative Mornings newsletter", source), 0, 1))
-
-# Local diversity
-dmod.local_divergence <- lmer(med_dist2 ~ condition + condition*creativity_human + condition*ai_rel_create + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-dmod.local_divergence2 <- lmer(med_dist2 ~ condition + condition*is_sm + condition*creativity_human + condition*ai_rel_create + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-
-
-# Local adoption
-dmod.local_sim <- lmer(ai_max_sim2 ~ condition + condition*creativity_human + condition*ai_rel_create + condition*interest_group + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-dmod.local_sim2 <- lmer(ai_max_sim2 ~ condition + condition*is_sm + condition*creativity_human + condition*ai_rel_create + condition*interest_group + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-
-# Creativity 
-dmod.creativity <-  lmer(creativity ~ condition + creativity_human + ai_rel_create + interest_group + trial_no + ai_feeling + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-dmod.creativity2 <-  lmer(creativity ~ condition + condition*is_sm + creativity_human + ai_rel_create + interest_group + trial_no + ai_feeling + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id), data=df)
-
-stargazer(dmod.creativity2, dmod.local_divergence2, dmod.local_sim2, type='text')
-
-
-```
-
-```{r}
-test_lrt <- function(data, var_name, base_formula, augmented_formula, round_digits=2) {
-  # Returns results of a hierarchical LRT in neat df 
-  
-  # Params
-  # - data (df): Dataframe
-  # - var_name (str): Str of DV
-  # - base_formula (str): Str of Model 1 
-  # - augmented_formula (str): Str of Model 2, which has more parameters than Model 1 
-  
-  # Returns
-  # A df with columns ['var', 'ChiSq', 'Df', 'Pr_ChiSq', 'Significant']
-
-  base_formula <- as.formula(base_formula)
-  augmented_formula <- as.formula(augmented_formula)
-
-  base_model <- lmer(base_formula, data=data)
-  augmented_model <- lmer(augmented_formula, data=data)
-  
-  # Chi-squared test
-  anova_res <- anova(base_model, augmented_model)
-  
-  # Extract and format results
-  results <- data.frame(
-    Var = var_name,
-    ChiSq = round(anova_res$Chisq[2], round_digits),
-    Df = round(anova_res$Df[2], 0),
-    Pr_ChiSq = round(anova_res$`Pr(>Chisq)`[2], round_digits),
-    Significant = ifelse(anova_res$`Pr(>Chisq)`[2] < 0.05, "YES", "NO"),
-    ChangeBIC = round(BIC(augmented_model) - BIC(base_model), round_digits)
-  )
-  
-  return(results)
-}
-
-# Local diversity
-results_diversity <- test_lrt(
-  data = df,
-  var_name = "Local Diversity",
-  base_formula = "med_dist2 ~ condition + condition*creativity_human + condition*ai_rel_create + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)",
-  augmented_formula = "med_dist2 ~ condition + condition*is_sm + condition*creativity_human + condition*ai_rel_create + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)"
-)
-
-# Local adoption model
-results_adoption <- test_lrt(
-  data = df,
-  var_name = "AI Adoption",
-  base_formula = "ai_max_sim2 ~condition + condition*creativity_human + condition*ai_rel_create + condition*interest_group + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)",
-  augmented_formula = "ai_max_sim2 ~condition*is_sm + condition*creativity_human + condition*ai_rel_create + condition*interest_group + creativity_human + trial_no + ai_rel_create + ai_feeling + interest_group + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)"
-)
-
-# Creativity model
-results_creativity <- test_lrt(
-  data = df,
-  var_name = "Creativity",
-  base_formula = "creativity ~ condition + creativity_human + ai_rel_create + interest_group + trial_no + ai_feeling + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)",
-  augmented_formula = "creativity ~ condition + condition*is_sm + creativity_human + ai_rel_create + interest_group + trial_no + ai_feeling + condition_order + log_duration + n_seeds + (1|participant_id) + (1|item_condition/response_chain_id)"
-)
-
-# Combine results
-combined_results <- rbind(results_diversity, results_adoption, results_creativity)
-
 
 
 ```
